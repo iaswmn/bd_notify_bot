@@ -13,6 +13,14 @@ class FileManager:
             file.seek(0)
             json.dump(file_data, file, indent=4)
 
+    def get_all_data(self):
+        new_dict = []
+        with open(self.file_name_json, 'r') as file:
+            file_data = json.load(file)
+            for row in file_data[self.bd_data_column]:
+                new_dict.append(row)
+        return new_dict
+
     def get_data_by_id(self, from_id):
         new_dict = []
         with open(self.file_name_json, 'r') as file:
@@ -40,4 +48,14 @@ class FileManager:
                 for i in range(len(file_data[self.bd_data_column])):
                     if file_data[self.bd_data_column][i]['id'] == from_id and i == row_number:
                         del file_data[self.bd_data_column][i]
+                        break
+                json.dump(file_data, file, indent=4)
+
+    def change_notify_status(self, from_id, row_number, status):
+        with open(self.file_name_json, 'r') as file:
+            file_data = json.load(file)
+            with open(self.file_name_json, 'w') as file:
+                for i in range(len(file_data[self.bd_data_column])):
+                    if file_data[self.bd_data_column][i]['id'] == from_id and i == row_number:
+                        file_data[self.bd_data_column][i]['notify'] = status
                 json.dump(file_data, file, indent=4)
