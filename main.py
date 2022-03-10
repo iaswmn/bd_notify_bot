@@ -13,6 +13,7 @@ bot = TeleBot(BotSettings.BOT_TOKEN.value)
 file_manager = FileManager()
 notify_manager = NotifyManager(bot, file_manager)
 
+edit_row_i = 0
 data_dict = {'id': '',
              'name': '',
              'date': '',
@@ -42,11 +43,11 @@ def cut(message):
 
 @bot.message_handler(commands=['change'])
 def change(message):
+    global edit_row_i
     bot.send_message(message.chat.id,
-                     'Пример: Женя Программист, 01.01.1990, @test, 2 (это номер записи из запроса see)')
+                     'Пример: Женя Программист, 01.01.1990, @test')
+    edit_row_i = int(extract_arg(message.text)[0])
     bot.register_next_step_handler(message, check_message, 3)
-
-
 
 
 def extract_arg(arg):
@@ -61,7 +62,7 @@ def check_message(message, type):
             data_dict['id'] = message.from_user.id
             data_dict['name'] = data_list[0]
             data_dict['date'] = check_on_date(data_list[1])
-            if len(data_list) == 3:
+            if len(data_list) >= 3:
                 data_dict['nick'] = check_on_nick(data_list[2])
             prepare_data_to_save(data_dict, type)
         except Exception as e:
@@ -92,7 +93,7 @@ def prepare_data_to_save(bd_dict, save_type):
         file_manager.save_data_to_file(bd_dict)
         bot.send_message(bd_dict['id'], "Запись добалена!")
     elif save_type == 3:
-        update_row(bd_dict['id'], bd_dict, data[3])
+        update_row(bd_dict['id'], bd_dict, edit_row_i)
 
 
 def show_all_bd_data_for_id(from_id):
@@ -113,8 +114,8 @@ def update_row(from_id, data, row_number):
 
 
 def delete_row(from_id, message):
-    args_dict = extract_arg(message.text)
-    file_manager.delete_data_by_id_and_i(from_id, int(args_dict[0]))
+    args_dict = int(extract_arg(message.text)[0])
+    file_manager.delete_data_by_id_and_i(from_id, args_dict)
     bot.send_message(from_id, "Запись удалена!")
 
 
