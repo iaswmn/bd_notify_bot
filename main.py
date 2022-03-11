@@ -44,13 +44,21 @@ def cut(message):
 @bot.message_handler(commands=['change'])
 def change(message):
     global edit_row_i
-    bot.send_message(message.chat.id,
-                     'Пример: Женя Программист, 01.01.1990, @test')
-    edit_row_i = int(extract_arg(message.text)[0])
-    bot.register_next_step_handler(message, check_message, 3)
+    try:
+        edit_row_i = int(extract_arg(message.text)[0])
+        bot.send_message(message.chat.id,
+                         'Пример: Женя Программист, 01.01.1990, @test')
+        bot.register_next_step_handler(message, check_message, 3)
+    except Exception as e:
+        bot.send_message(message.chat.id, str(e))
+
+
 
 
 def extract_arg(arg):
+    args_list = arg.split()[1:]
+    if len(args_list) == 0:
+        raise Exception('Неверно введеная команда.')
     return arg.split()[1:]
 
 
@@ -109,14 +117,19 @@ def show_all_bd_data_for_id(from_id):
 
 
 def update_row(from_id, data, row_number):
+    print(row_number)
     file_manager.update_data_by_id_and_i(from_id, int(row_number), data)
     bot.send_message(from_id, "Updated!")
 
 
 def delete_row(from_id, message):
-    args_dict = int(extract_arg(message.text)[0])
-    file_manager.delete_data_by_id_and_i(from_id, args_dict)
-    bot.send_message(from_id, "Запись удалена!")
+    try:
+        args_dict = int(extract_arg(message.text)[0])
+        file_manager.delete_data_by_id_and_i(from_id, args_dict)
+        bot.send_message(from_id, "Запись удалена!")
+    except Exception as e:
+        bot.send_message(message.chat.id, str(e))
+
 
 
 def notify_worker():
