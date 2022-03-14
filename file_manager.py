@@ -37,32 +37,45 @@ class FileManager:
         new_dict = []
         with open(self.file_name_json, 'r') as file:
             file_data = json.load(file)
-            for row in file_data[self.bd_data_column][0][str(from_id)]:
-                new_dict.append(row)
+            if str(from_id) in file_data[self.bd_data_column][0]:
+                for row in file_data[self.bd_data_column][0][str(from_id)]:
+                    new_dict.append(row)
         return new_dict
 
     def update_data_by_id_and_i(self, from_id, row_number, new_data):
         with open(self.file_name_json, 'r') as file:
             file_data = json.load(file)
             with open(self.file_name_json, 'w') as file:
-                column = file_data[self.bd_data_column][0][str(from_id)]
-                for i in range(len(column)):
-                    if i == row_number:
-                        column[i]['name'] = new_data['name']
-                        column[i]['date'] = new_data['date']
-                        column[i]['nick'] = new_data['nick']
-                json.dump(file_data, file, indent=4)
+                if str(from_id) in file_data[self.bd_data_column][0]:
+                    column = file_data[self.bd_data_column][0][str(from_id)]
+                    if len(column) != 0:
+                        for i in range(len(column)):
+                            if i == row_number:
+                                column[i]['name'] = new_data['name']
+                                column[i]['date'] = new_data['date']
+                                column[i]['nick'] = new_data['nick']
+                        json.dump(file_data, file, indent=4)
+                        return True
+                    else:
+                        return False
 
     def delete_data_by_id_and_i(self, from_id, row_number):
         with open(self.file_name_json, 'r') as file:
             file_data = json.load(file)
             with open(self.file_name_json, 'w') as file:
-                column = file_data[self.bd_data_column][0][str(from_id)]
-                for i in range(len(column)):
-                    if i == row_number:
-                        del column[i]
-                        break
-                json.dump(file_data, file, indent=4)
+                if str(from_id) in file_data[self.bd_data_column][0]:
+                    column = file_data[self.bd_data_column][0][str(from_id)]
+                    if len(column) != 0:
+                        for i in range(len(column)):
+                            if i == row_number:
+                                del column[i]
+                                break
+                        json.dump(file_data, file, indent=4)
+                        return True
+                    else:
+                        return False
+
+
 
     def change_notify_status(self, from_id, row_number, status):
         with open(self.file_name_json, 'r') as file:

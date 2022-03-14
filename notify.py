@@ -10,8 +10,8 @@ class NotifyManager:
         self.bot = bot
         self.file_manager = file_manager
         self.buttons = [
-            {'id': 0, 'text': 'Поздравил!', 'value': 0},
-            {'id': 1, 'text': 'Поздравлю позже!', 'value': 0}
+            {'id': 0, 'text': 'Поздравил.', 'value': 0},
+            {'id': 1, 'text': 'Поздравлю позже.', 'value': 0}
         ]
 
     def notify_manager(self):
@@ -21,15 +21,19 @@ class NotifyManager:
             for column in data:
                 i = 0
                 for row in range(len(data[column][0])):
-                    row_date = datetime.strptime(data[column][0][row]['date'], "%d.%m.%Y")
-                    if row_date.date().month == today.month and row_date.date().day == today.day:
-                        self.buttons[0]['value'] = i
-                        self.buttons[1]['value'] = i
-                        keyboard_manager = KeyboardManager(self.bot, self.file_manager, self.buttons)
-                        new_conn_thread = threading.Thread(target=keyboard_manager.show_keyboard(data[column][0][row]))
-                        new_conn_thread.start()
-                    i += 1
+                    try:
+                        row_date = datetime.strptime(data[column][0][row]['date'], "%d.%m.%Y")
+                    except ValueError:
+                        row_date = datetime.strptime(data[column][0][row]['date'], "%d.%m")
 
+                    if row_date.date().month == today.month and row_date.date().day == today.day:
+                        if not data[column][0][row]['notify']:
+                            self.buttons[0]['value'] = i
+                            self.buttons[1]['value'] = i
+                            keyboard_manager = KeyboardManager(self.bot, self.file_manager, self.buttons)
+                            new_conn_thread = threading.Thread(target=keyboard_manager.show_keyboard(data[column][0][row]))
+                            new_conn_thread.start()
+                    i += 1
 
 
 class KeyboardManager:
@@ -47,10 +51,10 @@ class KeyboardManager:
             button = self.buttons[button_id]
             if button_id == 0:
                 print(button_value)
-                self.file_manager.change_notify_status(call.from_user.id, button_value, False)
+                self.file_manager.change_notify_status(call.from_user.id, button_value, True)
             elif button_id == 1:
                 print(button_value)
-                self.file_manager.change_notify_status(call.from_user.id, button_value, True)
+                self.file_manager.change_notify_status(call.from_user.id, button_value, False)
 
             text = f"Отмечено как: {button['text']}"
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
