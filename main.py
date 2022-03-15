@@ -28,7 +28,7 @@ def start(message):
 
 @bot.message_handler(commands=['add'])
 def add(message):
-    bot.send_message(message.chat.id, 'Example: Женя Программист, 01.01.1990, @test')
+    bot.send_message(message.chat.id, BotText.EXAMPLE_TEXT.value)
     bot.register_next_step_handler(message, check_message, 2)
 
 
@@ -96,19 +96,19 @@ def check_on_date(date_from_msg):
             datetime.strptime(re_date, "%d.%m.%Y")
         return re_date
     except ValueError:
-        raise Exception('Неверный формат даты.')
+        raise Exception(BotText.DATE_ERROR.value)
 
 
 def check_on_nick(nick_from_msg):
     if nick_from_msg[0] != '@':
-        raise Exception('Nick must start from @.')
+        raise Exception(BotText.NICK_ERROR.value)
     return nick_from_msg
 
 
 def prepare_data_to_save(bd_dict, save_type):
     if save_type == 2:
         file_manager.save_data_to_file(bd_dict)
-        bot.send_message(bd_dict['id'], "Запись успешно добалена!")
+        bot.send_message(bd_dict['id'], BotText.SUCCESS_ADDED.value)
     elif save_type == 3:
         update_row(bd_dict['id'], bd_dict, edit_row_i)
 
@@ -122,7 +122,7 @@ def show_all_bd_data_for_id(from_id):
             bot.send_message(from_id, message_to_send)
             i += 1
     else:
-        bot.send_message(from_id, 'Нет сохраненных записей.')
+        bot.send_message(from_id, BotText.NO_SAVED_DATA.value)
 
 
 def validate_row_number(message, command_type):
@@ -132,8 +132,7 @@ def validate_row_number(message, command_type):
         if data.isdigit():
             if command_type == 'change':
                 edit_row_i = int(data)
-                bot.send_message(message.chat.id,
-                                 'Пример: Женя Программист, 01.01.1990, @test')
+                bot.send_message(message.chat.id, BotText.EXAMPLE_TEXT.value)
                 bot.register_next_step_handler(message, check_message, 3)
             elif command_type == 'cut':
                 delete_row(message.from_user.id, int(data))
@@ -141,33 +140,33 @@ def validate_row_number(message, command_type):
             numbers_list = message.text.replace(" ", "").split(',')
             for num in numbers_list:
                 if not num.isdigit():
-                    raise Exception('Неверно введен номер записи.')
+                    raise Exception(BotText.BAD_ROW_NUMBER.value)
 
             numbers_list = list(map(int, numbers_list))
             numbers_list.sort(reverse=True)
             for i in numbers_list:
                 delete_row(message.from_user.id, i)
         else:
-            raise Exception('Неверно введен номер записи.')
+            raise Exception(BotText.BAD_ROW_NUMBER.value)
 
 
 def update_row(from_id, data, row_number):
     result = file_manager.update_data_by_id_and_i(from_id, int(row_number), data)
     if result:
-        bot.send_message(from_id, "Запись успешно изменена!")
+        bot.send_message(from_id, BotText.SUCCESS_EDITED.value)
     else:
-        bot.send_message(from_id, 'Нет сохраненных записей.')
+        bot.send_message(from_id, BotText.NO_SAVED_DATA.value)
 
 
 def delete_row(from_id, row_number):
     try:
         result = file_manager.delete_data_by_id_and_i(from_id, row_number)
         if result:
-            bot.send_message(from_id, "Запись успешно удалена!")
+            bot.send_message(from_id, BotText.SUCCESS_DELETED.value)
         else:
-            bot.send_message(from_id, 'Нет сохраненных записей.')
+            bot.send_message(from_id, BotText.NO_SAVED_DATA.value)
     except Exception as e:
-        bot.send_message(message.chat.id, str(e))
+        bot.send_message(from_id, str(e))
 
 
 def notify_worker():
