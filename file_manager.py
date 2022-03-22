@@ -43,6 +43,7 @@ class FileManager:
         return new_dict
 
     def update_data_by_id_and_i(self, from_id, row_number, new_data):
+        row_number = row_number - 1
         with open(self.file_name_json, 'r') as file:
             file_data = json.load(file)
             with open(self.file_name_json, 'w') as file:
@@ -60,6 +61,7 @@ class FileManager:
                         return False
 
     def delete_data_by_id_and_i(self, from_id, row_number):
+        row_number = row_number - 1
         with open(self.file_name_json, 'r') as file:
             file_data = json.load(file)
             with open(self.file_name_json, 'w') as file:
@@ -75,9 +77,8 @@ class FileManager:
                     else:
                         return False
 
-
-
     def change_notify_status(self, from_id, row_number, status):
+        row_number = row_number - 1
         with open(self.file_name_json, 'r') as file:
             file_data = json.load(file)
             with open(self.file_name_json, 'w') as file:

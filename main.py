@@ -55,6 +55,17 @@ def change(message):
     except Exception as e:
         bot.send_message(message.chat.id, str(e))
 
+@bot.message_handler(commands=['change'])
+def change(message):
+    try:
+        bot.send_message(message.chat.id, BotText.CHANGE_COMMAND.value)
+        bot.register_next_step_handler(message, validate_row_number, 'change')
+    except Exception as e:
+        bot.send_message(message.chat.id, str(e))
+
+@bot.message_handler(content_types=["text"])
+def on_text(message):
+    start(message)
 
 # def extract_arg(arg):
 #     args_list = arg.split()[1:]
@@ -116,7 +127,7 @@ def prepare_data_to_save(bd_dict, save_type):
 def show_all_bd_data_for_id(from_id):
     data = file_manager.get_data_by_id(from_id)
     if len(data) != 0:
-        i = 0
+        i = 1
         for row in data:
             message_to_send = f'''№{i} - {row['name']}, {row['date']}, {row['nick']}'''
             bot.send_message(from_id, message_to_send)
